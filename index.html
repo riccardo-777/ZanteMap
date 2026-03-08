@@ -533,7 +533,7 @@ const SPIAGGE = [
   { nome: "Paralia Argasi",            lat: 37.76577859153711, lon: 20.923563252747286, emoji: "🏝️" },
   { nome: "Kaminia Beach",            lat: 37.74319163156769, lon: 20.953624005620682, emoji: "🏝️" },
   { nome: "Paralia Ammoudi",            lat: 37.84158865215863, lon: 20.804788329461694, emoji: "🏝️" },
-  
+  { nome: "White Beach",            lat: 37.83803720286872, lon: 20.62817450221426, emoji: "🏝️" },
   // Aggiungi altre spiagge qui...
 ];
 
@@ -543,6 +543,7 @@ const SUPERMERCATI = [
   { nome: "My Market - Zacinto",     lat: 37.77590990745675, lon: 20.893262296307444, emoji: "🛒" }
   // Aggiungi altri supermercati qui...
 ];
+
 /* ═══════════════════════════════════════════
    FINE SEZIONE DA MODIFICARE
    ═════════════════════════════════════════ */
@@ -703,9 +704,18 @@ async function openPanel(casaId) {
   const body = document.getElementById('panel-body');
   body.innerHTML = '';
 
+  // Ordina spiagge e supermercati per distanza in linea d'aria dalla casa
+  const spiaggeOrdinate = [...SPIAGGE]
+    .map(s => ({ ...s, _km: distanzaLineaAria(casa.lat, casa.lon, s.lat, s.lon) }))
+    .sort((a, b) => a._km - b._km);
+
+  const mercatiOrdinati = [...SUPERMERCATI]
+    .map(m => ({ ...m, _km: distanzaLineaAria(casa.lat, casa.lon, m.lat, m.lon) }))
+    .sort((a, b) => a._km - b._km);
+
   // Sezione spiagge — inserisce subito i link Google Maps come fallback
   body.innerHTML += `<div class="section-label">🏖️ Spiagge vicine</div>`;
-  SPIAGGE.forEach((s, i) => {
+  spiaggeOrdinate.forEach((s, i) => {
     const wLink = gmapsLink(casa.lat, casa.lon, s.lat, s.lon, 'walking');
     const dLink = gmapsLink(casa.lat, casa.lon, s.lat, s.lon, 'driving');
     body.innerHTML += `
@@ -723,7 +733,7 @@ async function openPanel(casaId) {
 
   // Sezione supermercati
   body.innerHTML += `<div class="section-label">🛒 Supermercati vicini</div>`;
-  SUPERMERCATI.forEach((m, i) => {
+  mercatiOrdinati.forEach((m, i) => {
     const wLink = gmapsLink(casa.lat, casa.lon, m.lat, m.lon, 'walking');
     const dLink = gmapsLink(casa.lat, casa.lon, m.lat, m.lon, 'driving');
     body.innerHTML += `
@@ -742,8 +752,8 @@ async function openPanel(casaId) {
   // Calcola distanze reali con ORS, una alla volta per non sforare i rate limit
   const sleep = ms => new Promise(res => setTimeout(res, ms));
 
-  for (let i = 0; i < SPIAGGE.length; i++) {
-    const s = SPIAGGE[i];
+  for (let i = 0; i < spiaggeOrdinate.length; i++) {
+    const s = spiaggeOrdinate[i];
     const [walk, drive] = await Promise.all([
       getORS(casa.lat, casa.lon, s.lat, s.lon, 'foot-walking'),
       getORS(casa.lat, casa.lon, s.lat, s.lon, 'driving-car')
@@ -752,8 +762,8 @@ async function openPanel(casaId) {
     await sleep(200);
   }
 
-  for (let i = 0; i < SUPERMERCATI.length; i++) {
-    const m = SUPERMERCATI[i];
+  for (let i = 0; i < mercatiOrdinati.length; i++) {
+    const m = mercatiOrdinati[i];
     const [walk, drive] = await Promise.all([
       getORS(casa.lat, casa.lon, m.lat, m.lon, 'foot-walking'),
       getORS(casa.lat, casa.lon, m.lat, m.lon, 'driving-car')
