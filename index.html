@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🏖️ Zante 2025 — Scelta Casa</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --ocean: #0a3d62;
+      --sky: #1e6fa5;
+      --wave: #2980b9;
+      --sand: #f5e6c8;
+      --sand-dark: #e8d5a3;
+      --sunset: #e67e22;
+      --white: #fdfaf5;
+      --text: #1a1a2e;
+      --text-light: #5a6478;
+      --house-red: #e74c3c;
+      --beach-yellow: #f1c40f;
+      --market-blue: #2980b9;
+      --panel-w: 380px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--ocean);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      background: var(--ocean);
+      padding: 0 24px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 1000;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-icon { font-size: 26px; }
+
+    .header-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--sand);
+      letter-spacing: 0.02em;
+    }
+
+    .header-sub {
+      font-size: 12px;
+      color: rgba(245,230,200,0.55);
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ─── LEGEND ─── */
+    .legend {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--sand);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.4);
+      flex-shrink: 0;
+    }
+
+    /* ─── MAIN LAYOUT ─── */
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ─── MAP ─── */
+    #map {
+      flex: 1;
+      z-index: 1;
+    }
+
+    /* ─── SIDE PANEL ─── */
+    #panel {
+      width: var(--panel-w);
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(var(--panel-w));
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 500;
+      overflow: hidden;
+      flex-shrink: 0;
+      border-left: 1px solid var(--sand-dark);
+    }
+
+    #panel.open { transform: translateX(0); }
+
+    .panel-header {
+      background: var(--ocean);
+      padding: 20px 22px 18px;
+      flex-shrink: 0;
+    }
+
+    .panel-close {
+      float: right;
+      background: none;
+      border: none;
+      color: rgba(245,230,200,0.7);
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+    .panel-close:hover { color: var(--sand); }
+
+    .panel-tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--sunset);
+      margin-bottom: 4px;
+    }
+
+    .panel-house-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--sand);
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .panel-house-desc {
+      font-size: 12px;
+      color: rgba(245,230,200,0.6);
+      font-weight: 300;
+    }
+
+    .panel-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      background: var(--sunset);
+      color: white;
+      text-decoration: none;
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .panel-link:hover { background: #d35400; transform: translateY(-1px); }
+
+    .panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 0 20px;
+    }
+
+    .panel-body::-webkit-scrollbar { width: 4px; }
+    .panel-body::-webkit-scrollbar-thumb { background: var(--sand-dark); border-radius: 2px; }
+
+    .section-label {
+      padding: 16px 22px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      border-bottom: 1px solid var(--sand-dark);
+      background: var(--white);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .distance-item {
+      padding: 13px 22px;
+      border-bottom: 1px solid rgba(232,213,163,0.3);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: background 0.15s;
+    }
+    .distance-item:hover { background: rgba(245,230,200,0.3); }
+
+    .dist-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .dist-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .dist-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .badge-walk { background: #eafaf1; color: #27ae60; }
+    .badge-drive { background: #eaf3ff; color: #2980b9; }
+    .badge-loading { background: #f4f4f4; color: #aaa; }
+
+    /* ─── LEAFLET CUSTOM ─── */
+    .leaflet-popup-content-wrapper {
+      border-radius: 12px !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.18) !important;
+    }
+
+    .leaflet-popup-content {
+      margin: 0 !important;
+      min-width: 200px;
+    }
+
+    .leaflet-popup-tip-container { display: none !important; }
+
+    .popup-house {
+      padding: 14px 16px;
+      border-left: 4px solid var(--house-red);
+    }
+
+    .popup-beach {
+      padding: 14px 16px;
+      border-left: 4px solid var(--beach-yellow);
+    }
+
+    .popup-market {
+      padding: 14px 16px;
+      border-left: 4px solid var(--market-blue);
+    }
+
+    .popup-type {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-bottom: 3px;
+    }
+
+    .popup-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .popup-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      border: none;
+      border-radius: 14px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .popup-btn-red { background: var(--house-red); color: white; }
+    .popup-btn-red:hover { background: #c0392b; }
+
+    .popup-btn-outline {
+      background: transparent;
+      color: var(--ocean);
+      border: 1.5px solid var(--ocean);
+      margin-left: 4px;
+    }
+    .popup-btn-outline:hover { background: var(--ocean); color: white; }
+
+    /* ─── CUSTOM MARKERS ─── */
+    .marker-house, .marker-beach, .marker-market {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+      font-size: 15px;
+      transition: transform 0.15s;
+      cursor: pointer;
+    }
+
+    .marker-house  { width: 36px; height: 36px; background: var(--house-red); }
+    .marker-beach  { width: 30px; height: 30px; background: #e6a800; }
+    .marker-market { width: 30px; height: 30px; background: var(--market-blue); }
+
+    /* ─── INTRO HINT ─── */
+    .map-hint {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10,61,98,0.88);
+      backdrop-filter: blur(6px);
+      color: var(--sand);
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      z-index: 900;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      opacity: 1;
+      transition: opacity 0.5s;
+    }
+    .map-hint.hidden { opacity: 0; }
+
+    @media (max-width: 700px) {
+      #panel { width: 100%; position: absolute; top: 58px; right: 0; bottom: 0; transform: translateX(100%); }
+      #panel.open { transform: translateX(0); }
+      .legend { display: none; }
+      .header-sub { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <span class="header-icon">🏝️</span>
+    <div>
+      <div class="header-title">Zante 2025</div>
+      <div class="header-sub">Scelta della casa vacanze</div>
+    </div>
+  </div>
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#e74c3c"></div>
+      Case
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#e6a800"></div>
+      Spiagge
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#2980b9"></div>
+      Supermercati
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <div id="map">
+    <div class="map-hint" id="hint">👆 Clicca su una casa rossa per vedere distanze e dettagli</div>
+  </div>
+  <div id="panel">
+    <div class="panel-header">
+      <button class="panel-close" onclick="closePanel()">✕</button>
+      <div class="panel-tag">Casa in esame</div>
+      <div class="panel-house-name" id="panel-name">—</div>
+      <div class="panel-house-desc" id="panel-desc">—</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <a href="#" id="panel-link" class="panel-link" style="margin-top:0" target="_blank" rel="noopener">
+          🔗 Booking / Airbnb
+        </a>
+        <a href="#" id="panel-gmaps" class="panel-link" style="margin-top:0;background:#34a853" target="_blank" rel="noopener">
+          📍 Google Maps
+        </a>
+      </div>
+    </div>
+    <div class="panel-body" id="panel-body">
+      <!-- distanze inserite dinamicamente -->
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   ██████╗  █████╗ ████████╗██╗    ██████╗  █████╗ ███████╗███████╗
+   ██╔══██╗██╔══██╗╚══██╔══╝██║    ██╔══██╗██╔══██╗██╔════╝██╔════╝
+   ██║  ██║███████║   ██║   ██║    ██████╔╝███████║███████╗█████╗  
+   ██║  ██║██╔══██║   ██║   ██║    ██╔══██╗██╔══██║╚════██║██╔══╝  
+   ██████╔╝██║  ██║   ██║   ██║    ██████╔╝██║  ██║███████║███████╗
+   ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝
+
+   MODIFICA SOLO QUESTA SEZIONE per personalizzare la mappa!
+   
+   Come trovare le coordinate:
+   1. Vai su https://www.openstreetmap.org
+   2. Cerca la posizione
+   3. Tasto destro → "Mostra indirizzo" → copia lat/lon
+   ════════════════════════════════════════════════════════════════ */
+
+const CASE = [
+  {
+    id: "casa1",
+    nome: "Casa 1",
+    descrizione: "",
+    link: "https://www.airbnb.it/rooms/546983952886023105?unique_share_id=a76a70b5-7387-4f1c-bfce-ac00b8c4b9d6&viralityEntryPoint=1&s=76&source_impression_id=p3_1772924168_P36G499uC0Sda1ON&check_in=2026-08-20&guests=1&adults=1&check_out=2026-08-27",    // ← INSERISCI il tuo link Airbnb/Booking
+    lat: 37.83887306244865,
+    lon: 20.822094859944436
+  },
+  {
+    id: "casa2",
+    nome: "Casa 2",
+    descrizione: "",
+    link: "https://www.booking.com/hotel/XXXXXXX",  // ← INSERISCI il tuo link
+    lat: 37.7637,
+    lon: 20.9226
+  },
+  {
+    id: "casa3",
+    nome: "Casa 3 — Esempio Tsilivi",
+    descrizione: "5 camere · villa privata · BBQ",
+    link: "https://www.airbnb.it/rooms/YYYYYYY",
+    lat: 37.8341,
+    lon: 20.9129
+  },
+  {
+    id: "casa4",
+    nome: "Casa 4 — Esempio Centro Zakynthos",
+    descrizione: "3 camere · appartamento in città",
+    link: "https://www.booking.com/hotel/YYYYYYY",
+    lat: 37.7912,
+    lon: 20.8973
+  }
+  // Aggiungi altre case qui seguendo lo stesso schema...
+];
+
+const SPIAGGE = [
+  { nome: "Laganas Beach",          lat: 37.7181, lon: 20.9067, emoji: "🏖️" },
+  { nome: "Navagio (SPIAGGIA DEL RELITTO)",     lat: 37.85950357645654, lon: 20.624890669024385, emoji: "⚓" },
+  { nome: "Gerakas Beach",          lat: 37.706801943478794, lon: 20.987394818509713, emoji: "🐢" },
+  { nome: "Tsilivi Beach",          lat: 37.816997671352496, lon: 20.870732793184104, emoji: "🌊" },
+  { nome: "Porto Zorro",            lat: 37.73960702150121, lon: 20.961170318115983, emoji: "🏝️" },
+  { nome: "Banana Beach",           lat: 37.732226505925915, lon: 20.980736497088806, emoji: "🍌" },
+  // IO
+  { nome: "Katragaki beach",            lat: 37.82900406436981, lon: 20.841894555632887, emoji: "🏝️" },
+  // Aggiungi altre spiagge qui...
+];
+
+const SUPERMERCATI = [
+  { nome: "Sklavenitis — Laganas",   lat: 37.7268, lon: 20.9061, emoji: "🛒" },
+  { nome: "Lidl — Zakynthos",        lat: 37.7954, lon: 20.8987, emoji: "🛒" },
+  { nome: "My Market — Tsilivi",     lat: 37.8312, lon: 20.9132, emoji: "🛒" }
+  // Aggiungi altri supermercati qui...
+];
+
+/* ═══════════════════════════════════════════
+   FINE SEZIONE DA MODIFICARE
+   ═════════════════════════════════════════ */
+
+
+// Inizializza mappa centrata su Zante
+const map = L.map('map', {
+  center: [37.78, 20.90],
+  zoom: 12,
+  zoomControl: true
+});
+
+// Tiles OpenStreetMap (gratis, no API key)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom: 19
+}).addTo(map);
+
+// Crea icona HTML personalizzata
+function makeIcon(className) {
+  return L.divIcon({
+    className: '',
+    html: `<div class="${className}"></div>`,
+    iconSize: className === 'marker-house' ? [36, 36] : [30, 30],
+    iconAnchor: className === 'marker-house' ? [18, 18] : [15, 15],
+    popupAnchor: [0, className === 'marker-house' ? -20 : -17]
+  });
+}
+
+const iconCasa    = makeIcon('marker-house');
+const iconSpiaggia = makeIcon('marker-beach');
+const iconMercato = makeIcon('marker-market');
+
+// ─── Aggiungi spiagge (giallo) ───
+SPIAGGE.forEach(s => {
+  L.marker([s.lat, s.lon], { icon: iconSpiaggia })
+    .addTo(map)
+    .bindPopup(`
+      <div class="popup-beach">
+        <div class="popup-type">🌊 Spiaggia</div>
+        <div class="popup-name">${s.emoji} ${s.nome}</div>
+      </div>
+    `);
+});
+
+// ─── Aggiungi supermercati (blu) ───
+SUPERMERCATI.forEach(m => {
+  L.marker([m.lat, m.lon], { icon: iconMercato })
+    .addTo(map)
+    .bindPopup(`
+      <div class="popup-market">
+        <div class="popup-type">🛒 Supermercato</div>
+        <div class="popup-name">${m.nome}</div>
+      </div>
+    `);
+});
+
+// ─── Aggiungi case (rosso) ───
+CASE.forEach(casa => {
+  const marker = L.marker([casa.lat, casa.lon], { icon: iconCasa })
+    .addTo(map)
+    .bindPopup(`
+      <div class="popup-house">
+        <div class="popup-type">🏠 Casa in esame</div>
+        <div class="popup-name">${casa.nome}</div>
+        <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
+          <button class="popup-btn popup-btn-red" onclick="openPanel('${casa.id}')">
+            📊 Distanze
+          </button>
+          <a href="${casa.link}" target="_blank" rel="noopener"
+             style="text-decoration:none">
+            <button class="popup-btn popup-btn-outline">🔗 Link</button>
+          </a>
+          <a href="https://www.google.com/maps?q=${casa.lat},${casa.lon}" target="_blank" rel="noopener"
+             style="text-decoration:none">
+            <button class="popup-btn" style="background:#34a853;color:white">📍 Maps</button>
+          </a>
+        </div>
+      </div>
+    `);
+
+  // Doppio click apre direttamente il pannello
+  marker.on('click', () => hideHint());
+});
+
+// ─── ROUTING via OSRM (gratis, no API key) ───
+async function getDistanza(fromLat, fromLon, toLat, toLon, profile) {
+  const url = `https://router.project-osrm.org/route/v1/${profile}/${fromLon},${fromLat};${toLon},${toLat}?overview=false`;
+  try {
+    const r = await fetch(url);
+    const d = await r.json();
+    if (d.code !== 'Ok' || !d.routes?.length) return null;
+    const distKm  = (d.routes[0].distance / 1000).toFixed(1);
+    const durMin  = Math.round(d.routes[0].duration / 60);
+    return { km: distKm, min: durMin };
+  } catch {
+    return null;
+  }
+}
+
+function formatBadges(walk, drive) {
+  let html = '';
+  if (walk)  html += `<span class="badge badge-walk">🚶 ${walk.min} min (${walk.km} km)</span>`;
+  else       html += `<span class="badge badge-loading">🚶 —</span>`;
+  if (drive) html += `<span class="badge badge-drive">🚗 ${drive.min} min</span>`;
+  else       html += `<span class="badge badge-loading">🚗 —</span>`;
+  return html;
+}
+
+// ─── PANNELLO LATERALE ───
+let currentCasaId = null;
+
+async function openPanel(casaId) {
+  const casa = CASE.find(c => c.id === casaId);
+  if (!casa) return;
+
+  currentCasaId = casaId;
+  hideHint();
+
+  // Aggiorna header pannello
+  document.getElementById('panel-name').textContent  = casa.nome;
+  document.getElementById('panel-desc').textContent  = casa.descrizione;
+  document.getElementById('panel-link').href          = casa.link;
+  document.getElementById('panel-gmaps').href         = `https://www.google.com/maps?q=${casa.lat},${casa.lon}`;
+
+  // Apri pannello
+  document.getElementById('panel').classList.add('open');
+
+  // Popola il body con loading placeholder
+  const body = document.getElementById('panel-body');
+  body.innerHTML = '';
+
+  // Sezione spiagge
+  body.innerHTML += `<div class="section-label">🏖️ Spiagge vicine</div>`;
+  SPIAGGE.forEach((s, i) => {
+    body.innerHTML += `
+      <div class="distance-item" id="beach-${i}">
+        <span class="dist-icon">${s.emoji}</span>
+        <div>
+          <div class="dist-name">${s.nome}</div>
+          <div class="dist-badges" id="beach-badges-${i}">
+            <span class="badge badge-loading">Calcolo in corso...</span>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  // Sezione supermercati
+  body.innerHTML += `<div class="section-label">🛒 Supermercati vicini</div>`;
+  SUPERMERCATI.forEach((m, i) => {
+    body.innerHTML += `
+      <div class="distance-item" id="market-${i}">
+        <span class="dist-icon">${m.emoji}</span>
+        <div>
+          <div class="dist-name">${m.nome}</div>
+          <div class="dist-badges" id="market-badges-${i}">
+            <span class="badge badge-loading">Calcolo in corso...</span>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  // Calcola distanze in parallelo
+  const spiaggePromise = SPIAGGE.map(async (s, i) => {
+    const [walk, drive] = await Promise.all([
+      getDistanza(casa.lat, casa.lon, s.lat, s.lon, 'foot'),
+      getDistanza(casa.lat, casa.lon, s.lat, s.lon, 'driving')
+    ]);
+    const el = document.getElementById(`beach-badges-${i}`);
+    if (el) el.innerHTML = formatBadges(walk, drive);
+  });
+
+  const mercatiPromise = SUPERMERCATI.map(async (m, i) => {
+    const [walk, drive] = await Promise.all([
+      getDistanza(casa.lat, casa.lon, m.lat, m.lon, 'foot'),
+      getDistanza(casa.lat, casa.lon, m.lat, m.lon, 'driving')
+    ]);
+    const el = document.getElementById(`market-badges-${i}`);
+    if (el) el.innerHTML = formatBadges(walk, drive);
+  });
+
+  await Promise.all([...spiaggePromise, ...mercatiPromise]);
+}
+
+function closePanel() {
+  document.getElementById('panel').classList.remove('open');
+  currentCasaId = null;
+}
+
+// Expose globally for popup onclick
+window.openPanel = openPanel;
+
+// ─── HINT ───
+let hintHidden = false;
+function hideHint() {
+  if (hintHidden) return;
+  hintHidden = true;
+  const h = document.getElementById('hint');
+  h.classList.add('hidden');
+  setTimeout(() => h.remove(), 600);
+}
+map.on('click', hideHint);
+
+</script>
+</body>
+</html>
