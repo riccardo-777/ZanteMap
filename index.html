@@ -372,10 +372,17 @@
     .map-hint.hidden { opacity: 0; }
 
     @media (max-width: 700px) {
-      #panel { width: 100%; position: absolute; top: 58px; right: 0; bottom: 0; transform: translateX(100%); }
+      header {
+        height: auto;
+        padding: 10px 16px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      #panel { width: 100%; position: absolute; top: 0; right: 0; bottom: 0; transform: translateX(100%); }
       #panel.open { transform: translateX(0); }
-      .legend { display: none; }
       .header-sub { display: none; }
+      .legend { gap: 12px; }
+      .legend-item { font-size: 11px; }
     }
   </style>
 </head>
@@ -455,7 +462,7 @@ const CASE = [
     id: "casa1",
     nome: "Casa 1 - 7.812€ - MIN 7 NOTTI",
     descrizione: "MINIMO 7 NOTTI!!!! PREZZO: 7.812€",
-    link: "https://www.airbnb.it/rooms/546983952886023105?unique_share_id=a76a70b5-7387-4f1c-bfce-ac00b8c4b9d6&viralityEntryPoint=1&s=76&source_impression_id=p3_1772924168_P36G499uC0Sda1ON&check_in=2026-08-20&guests=10&adults=1&check_out=2026-08-27",    // ← INSERISCI il tuo link Airbnb/Booking
+    link: "https://www.airbnb.it/rooms/546983952886023105?unique_share_id=a76a70b5-7387-4f1c-bfce-ac00b8c4b9d6&viralityEntryPoint=1&s=76&source_impression_id=p3_1772924168_P36G499uC0Sda1ON&check_in=2026-08-20&guests=10&adults=10&check_out=2026-08-27",    // ← INSERISCI il tuo link Airbnb/Booking
     lat: 37.83887306244865,
     lon: 20.822094859944436
   },
@@ -536,7 +543,6 @@ const SUPERMERCATI = [
   { nome: "My Market - Zacinto",     lat: 37.77590990745675, lon: 20.893262296307444, emoji: "🛒" }
   // Aggiungi altri supermercati qui...
 ];
-
 /* ═══════════════════════════════════════════
    FINE SEZIONE DA MODIFICARE
    ═════════════════════════════════════════ */
