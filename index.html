@@ -248,11 +248,15 @@
       border-radius: 12px;
       font-size: 11px;
       font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
     }
+    .badge:hover { opacity: 0.8; }
 
-    .badge-walk { background: #eafaf1; color: #27ae60; }
+    .badge-walk  { background: #eafaf1; color: #27ae60; }
     .badge-drive { background: #eaf3ff; color: #2980b9; }
-    .badge-loading { background: #f4f4f4; color: #aaa; }
+    .badge-aria  { background: #f4f4f4; color: #888; }
 
     /* ─── LEAFLET CUSTOM ─── */
     .leaflet-popup-content-wrapper {
@@ -449,41 +453,65 @@
 const CASE = [
   {
     id: "casa1",
-    nome: "Casa 1",
-    descrizione: "",
+    nome: "Casa 1 - 7.812€ - MIN 7 NOTTI",
+    descrizione: "MINIMO 7 NOTTI!!!! PREZZO: 7.812€",
     link: "https://www.airbnb.it/rooms/546983952886023105?unique_share_id=a76a70b5-7387-4f1c-bfce-ac00b8c4b9d6&viralityEntryPoint=1&s=76&source_impression_id=p3_1772924168_P36G499uC0Sda1ON&check_in=2026-08-20&guests=1&adults=1&check_out=2026-08-27",    // ← INSERISCI il tuo link Airbnb/Booking
     lat: 37.83887306244865,
     lon: 20.822094859944436
   },
   {
     id: "casa2",
-    nome: "Casa 2 — Esempio Argasi",
-    descrizione: "3 camere · terrazza · vista mare",
-    link: "https://www.booking.com/hotel/XXXXXXX",  // ← INSERISCI il tuo link
-    lat: 37.7637,
-    lon: 20.9226
+    nome: "Casa 2 - 5.695€ - MIN 7 NOTTI",
+    descrizione: "MINIMO 7 NOTTI!!!! PREZZO: 5.695€",
+    link: "https://www.airbnb.it/rooms/1481086643878513445?adults=10&guests=10&location=Zante%2C%20Grecia&search_mode=regular_search&source_impression_id=p3_1770824734_P3-36doU304vBqKR&previous_page_section_name=1001&federated_search_id=ebb57f86-9261-4bde-b570-83ed0b5bad6e&scroll_to_review=1526777193752085135&check_in=2026-08-20&check_out=2026-08-27",  // ← INSERISCI il tuo link
+    lat: 37.807347978039424,
+    lon: 20.871163813324692
   },
   {
     id: "casa3",
-    nome: "Casa 3 — Esempio Tsilivi",
-    descrizione: "5 camere · villa privata · BBQ",
-    link: "https://www.airbnb.it/rooms/YYYYYYY",
-    lat: 37.8341,
-    lon: 20.9129
+    nome: "Casa 3 — 6.531€ - 2 VILLE",
+    descrizione: "Dal 20 al 26 (opz.27), PREZZO: 6.531€",
+    link: "https://www.booking.com/hotel/gr/queen-of-zakynthos-luxury-villa.it.html?aid=304142&label=gen173nr-10CAEoggI46AdIFFgEaHGIAQGYATO4AQfIAQ3YAQPoAQH4AQGIAgGoAgG4As7bss0GwAIB0gIkOWI3YWM1MTAtN2ZkOC00MzRkLWI4YTMtYmMxNDFhZDBiNDc32AIB4AIB&sid=690d94283cc60d712224f5a383ab455f&all_sr_blocks=486811102_398680350_6_0_0%2C486811101_398680350_6_0_0&checkin=2026-08-20&checkout=2026-08-26&dest_id=1663&dest_type=region&dist=0&group_adults=10&group_children=0&hapos=1&highlighted_blocks=486811102_398680350_6_0_0%2C486811101_398680350_6_0_0&hpos=1&matching_block_id=486811102_398680350_6_0_0&no_rooms=1&req_adults=10&req_children=0&room1=A%2CA%2CA%2CA%2CA%2CA%2CA%2CA%2CA%2CA&sb_price_type=total&sr_order=popularity&sr_pri_blocks=486811102_398680350_6_0_0__326538%2C486811101_398680350_6_0_0__326538&srepoch=1773006474&srpvid=5ccb9942a4630da7&type=total&ucfs=1&",
+    lat: 37.84064354100366, 
+    lon: 20.802927677918902
   },
   {
     id: "casa4",
-    nome: "Casa 4 — Esempio Centro Zakynthos",
-    descrizione: "3 camere · appartamento in città",
-    link: "https://www.booking.com/hotel/YYYYYYY",
-    lat: 37.7912,
-    lon: 20.8973
+    nome: "Casa 4 — 7.074€",
+    descrizione: "Dal 20 al 26(opz.27) PREZZO: 7.074€",
+    link: "https://www.booking.com/hotel/gr/nopi-holidays-zante-exclusive-villa.it.html?aid=304142&label=gen173nr-10CAEoggI46AdIFFgEaHGIAQGYATO4AQfIAQ3YAQPoAQH4AQGIAgGoAgG4As7bss0GwAIB0gIkOWI3YWM1MTAtN2ZkOC00MzRkLWI4YTMtYmMxNDFhZDBiNDc32AIB4AIB&sid=690d94283cc60d712224f5a383ab455f&all_sr_blocks=1429541701_427391702_10_0_0&checkin=2026-08-20&checkout=2026-08-26&dest_id=1663&dest_type=region&dist=0&group_adults=10&group_children=0&hapos=1&highlighted_blocks=1429541701_427391702_10_0_0&hpos=1&matching_block_id=1429541701_427391702_10_0_0&no_rooms=1&req_adults=10&req_children=0&room1=A%2CA%2CA%2CA%2CA%2CA%2CA%2CA%2CA%2CA&sb_price_type=total&sr_order=popularity&sr_pri_blocks=1429541701_427391702_10_0_0__707379&srepoch=1773006648&srpvid=d0a3999a3dd0000d&type=total&ucfs=1&",
+    lat: 37.8117174206042,
+    lon: 20.882774392116648
+  },
+  {
+    id: "casa5",
+    nome: "Casa 5 — 6.484€ -  2 VILLE",
+    descrizione: "Dal 20 al 26(opz.27) PREZZO: 6.484€",
+    link: "https://www.booking.com/hotel/gr/alypius-elegant-villas.it.html?label=gen173nr-10CAEoggI46AdIFFgEaHGIAQGYATO4AQfIAQ3YAQPoAQH4AQGIAgGoAgG4As7bss0GwAIB0gIkOWI3YWM1MTAtN2ZkOC00MzRkLWI4YTMtYmMxNDFhZDBiNDc32AIB4AIB&aid=304142&ucfs=1&checkin=2026-08-20&checkout=2026-08-26&dest_id=1663&dest_type=region&group_adults=10&no_rooms=1&group_children=0&nflt=ht_id%3D213%3Bht_id%3D220&srpvid=0da2a1adb9270235&srepoch=1772924445&matching_block_id=1148287801_387727787_6_0_0&atlas_src=sr_iw_title",
+    lat: 37.76900782016262, 
+    lon: 20.901702012287515
+  },
+  {
+    id: "casa6",
+    nome: "Casa 6 — 7.467€ - 2 VILLE",
+    descrizione: "Dal 20 al 26(opz.27) PREZZO: 7.467€",
+    link: "https://www.booking.com/hotel/gr/nostos-villas.it.html?aid=304142&label=gen173nr-10CAsoXEINbm9zdG9zLXZpbGxhc0gUWARocYgBAZgBM7gBB8gBDdgBA-gBAfgBAYgCAagCAbgC6ca3zQbAAgHSAiQ2NGU0MGJhOS1lNTAyLTQzYzctYTQ0Yy03ZGVhYzZmNDY0OTHYAgHgAgE&sid=690d94283cc60d712224f5a383ab455f&age=0&all_sr_blocks=852204102_355561362_7_0_0%2C852204103_355561362_4_0_0&checkin=2026-08-20&checkout=2026-08-26&dest_id=-831270&dest_type=city&dist=0&group_adults=10&group_children=1&hapos=1&highlighted_blocks=852204102_355561362_7_0_0%2C852204103_355561362_4_0_0&hpos=1&matching_block_id=852204102_355561362_7_0_0&no_rooms=1&req_adults=10&req_age=0&req_children=1&room1=A%2CA%2CA%2CA%2CA%2CA%2CA%2CA%2CA%2CA%2C0&sb_price_type=total&sr_order=popularity&sr_pri_blocks=852204102_355561362_7_0_0__404073%2C852204103_355561362_4_0_0__342655&srepoch=1773006908&srpvid=3ccd9a125b1c03f1&type=total&ucfs=1&",
+    lat: 37.77353789314668, 
+    lon: 20.89048133220477
+  },
+  {
+    id: "casa7",
+    nome: "Casa 7 — 6.739€ - 2 VILLE",
+    descrizione: "Dal 20 al 26(opz.27) PREZZO: 6.739€",
+    link: "https://www.booking.com/hotel/gr/chris-amp-jo-villas.it.html?aid=898224&label=hotel_details-rQQGAO%401772923109&sid=690d94283cc60d712224f5a383ab455f&all_sr_blocks=330748902_404377972_6_0_0%2C330748901_404377972_5_0_0&checkin=2026-08-20&checkout=2026-08-26&dest_id=-831270&dest_type=city&dist=0&group_adults=10&group_children=0&hapos=1&highlighted_blocks=330748902_404377972_6_0_0%2C330748901_404377972_5_0_0&hpos=1&matching_block_id=330748902_404377972_6_0_0&no_rooms=1&req_adults=10&req_children=0&room1=A%2CA%2CA%2CA%2CA%2CA%2CA%2CA%2CA%2CA&sb_price_type=total&sr_order=popularity&sr_pri_blocks=330748902_404377972_6_0_0__354687%2C330748901_404377972_5_0_0__319219&srepoch=1773007050&srpvid=b0669a63bdcf0484&type=total&ucfs=1&",
+    lat: 37.79484059054165, 
+    lon: 20.893619066971546
   }
   // Aggiungi altre case qui seguendo lo stesso schema...
 ];
 
 const SPIAGGE = [
-  { nome: "Laganas Beach",          lat: 37.7181, lon: 20.9067, emoji: "🏖️" },
+  { nome: "Laganas Beach",          lat: 37.72868701186936, lon: 20.87523303084317, emoji: "🏖️" },
   { nome: "Navagio (SPIAGGIA DEL RELITTO)",     lat: 37.85950357645654, lon: 20.624890669024385, emoji: "⚓" },
   { nome: "Gerakas Beach",          lat: 37.706801943478794, lon: 20.987394818509713, emoji: "🐢" },
   { nome: "Tsilivi Beach",          lat: 37.816997671352496, lon: 20.870732793184104, emoji: "🌊" },
@@ -491,13 +519,21 @@ const SPIAGGE = [
   { nome: "Banana Beach",           lat: 37.732226505925915, lon: 20.980736497088806, emoji: "🍌" },
   // IO
   { nome: "Katragaki beach",            lat: 37.82900406436981, lon: 20.841894555632887, emoji: "🏝️" },
+  { nome: "Paralia Psarou",            lat: 37.838852493443746, lon: 20.815208418733704, emoji: "🏝️" },
+  { nome: "Paralia Mpouka",            lat: 37.824653172411395, lon: 20.85939673984166, emoji: "🏝️" },
+  { nome: "Paralia Krioneri",            lat: 37.80162729741874, lon: 20.903484736941614, emoji: "🏝️" },
+  { nome: "Plaz EOT",            lat: 37.79152625255204, lon: 20.899850587162316, emoji: "🏝️" },
+  { nome: "Paralia Argasi",            lat: 37.76577859153711, lon: 20.923563252747286, emoji: "🏝️" },
+  { nome: "Kaminia Beach",            lat: 37.74319163156769, lon: 20.953624005620682, emoji: "🏝️" },
+  { nome: "Paralia Ammoudi",            lat: 37.84158865215863, lon: 20.804788329461694, emoji: "🏝️" },
+  
   // Aggiungi altre spiagge qui...
 ];
 
 const SUPERMERCATI = [
-  { nome: "Sklavenitis — Laganas",   lat: 37.7268, lon: 20.9061, emoji: "🛒" },
-  { nome: "Lidl — Zakynthos",        lat: 37.7954, lon: 20.8987, emoji: "🛒" },
-  { nome: "My Market — Tsilivi",     lat: 37.8312, lon: 20.9132, emoji: "🛒" }
+  //{ nome: "Sklavenitis — Laganas",   lat: 37.7268, lon: 20.9061, emoji: "🛒" },
+  { nome: "SPAR",        lat: 37.811962943228664, lon: 20.872384027615723, emoji: "🛒" },
+  { nome: "My Market - Zacinto",     lat: 37.77590990745675, lon: 20.893262296307444, emoji: "🛒" }
   // Aggiungi altri supermercati qui...
 ];
 
@@ -586,7 +622,10 @@ CASE.forEach(casa => {
   marker.on('click', () => hideHint());
 });
 
-// ─── Distanza in linea d'aria (fallback locale) ───
+// ─── API Key OpenRouteService ───
+const ORS_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjQyNWJmNjBhMjAxNTRmNzM5NzY4YTJmOWQ3OWFlZDNiIiwiaCI6Im11cm11cjY0In0=";
+
+// ─── Distanza in linea d'aria (usata come fallback) ───
 function distanzaLineaAria(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -597,34 +636,45 @@ function distanzaLineaAria(lat1, lon1, lat2, lon2) {
   return parseFloat((R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1));
 }
 
-// ─── ROUTING via OSRM (gratis, no API key) ───
-async function getDistanza(fromLat, fromLon, toLat, toLon, profile) {
-  const url = `https://router.project-osrm.org/route/v1/${profile}/${fromLon},${fromLat};${toLon},${toLat}?overview=false`;
+// ─── Chiamata OpenRouteService ───
+async function getORS(fromLat, fromLon, toLat, toLon, profile) {
+  // profile: 'foot-walking' | 'driving-car'
+  const url = `https://api.openrouteservice.org/v2/directions/${profile}?api_key=${ORS_KEY}&start=${fromLon},${fromLat}&end=${toLon},${toLat}`;
   try {
     const r = await fetch(url);
+    if (!r.ok) return null;
     const d = await r.json();
-    if (d.code !== 'Ok' || !d.routes?.length) return null;
-    const distKm = (d.routes[0].distance / 1000).toFixed(1);
-    const durMin = Math.round(d.routes[0].duration / 60);
-    return { km: distKm, min: durMin, reale: true };
+    const seg = d.features?.[0]?.properties?.segments?.[0];
+    if (!seg) return null;
+    return {
+      km:  (seg.distance / 1000).toFixed(1),
+      min: Math.round(seg.duration / 60)
+    };
   } catch {
     return null;
   }
 }
 
-function formatBadges(walk, drive, fromLat, fromLon, toLat, toLon) {
+function gmapsLink(fromLat, fromLon, toLat, toLon, mode) {
+  return `https://www.google.com/maps/dir/?api=1&origin=${fromLat},${fromLon}&destination=${toLat},${toLon}&travelmode=${mode}`;
+}
+
+function renderBadges(elId, walk, drive, fromLat, fromLon, toLat, toLon) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const wLink = gmapsLink(fromLat, fromLon, toLat, toLon, 'walking');
+  const dLink = gmapsLink(fromLat, fromLon, toLat, toLon, 'driving');
+  const km    = distanzaLineaAria(fromLat, fromLon, toLat, toLon);
+
   let html = '';
-  const osrmOk = walk || drive;
+  if (walk)  html += `<a class="badge badge-walk"  href="${wLink}" target="_blank" rel="noopener" title="Stima — clicca per il tempo reale su Google Maps">🚶 ~${walk.min} min · ${walk.km} km ↗</a>`;
+  else       html += `<a class="badge badge-walk"  href="${wLink}" target="_blank" rel="noopener">🚶 A piedi ↗</a>`;
+  if (drive) html += `<a class="badge badge-drive" href="${dLink}" target="_blank" rel="noopener" title="Stima — clicca per il tempo reale su Google Maps">🚗 ~${drive.min} min · ${drive.km} km ↗</a>`;
+  else       html += `<a class="badge badge-drive" href="${dLink}" target="_blank" rel="noopener">🚗 In auto ↗</a>`;
+  if (!walk && !drive) html += `<span class="badge badge-aria">📐 ~${km} km in linea d'aria</span>`;
+  if (walk || drive)   html += `<span class="badge badge-aria" style="font-size:10px">⚠️ stime, clicca per Google Maps</span>`;
 
-  if (walk)  html += `<span class="badge badge-walk">🚶 ${walk.min} min (${walk.km} km)</span>`;
-  if (drive) html += `<span class="badge badge-drive">🚗 ${drive.min} min</span>`;
-
-  if (!osrmOk) {
-    // Fallback: linea d'aria
-    const km = distanzaLineaAria(fromLat, fromLon, toLat, toLon);
-    html += `<span class="badge badge-loading" title="Distanza in linea d'aria — i tempi stradali sono disponibili solo online">📐 ~${km} km in linea d'aria</span>`;
-  }
-  return html;
+  el.innerHTML = html;
 }
 
 // ─── PANNELLO LATERALE ───
@@ -637,29 +687,29 @@ async function openPanel(casaId) {
   currentCasaId = casaId;
   hideHint();
 
-  // Aggiorna header pannello
-  document.getElementById('panel-name').textContent  = casa.nome;
-  document.getElementById('panel-desc').textContent  = casa.descrizione;
-  document.getElementById('panel-link').href          = casa.link;
-  document.getElementById('panel-gmaps').href         = `https://www.google.com/maps?q=${casa.lat},${casa.lon}`;
+  document.getElementById('panel-name').textContent = casa.nome;
+  document.getElementById('panel-desc').textContent = casa.descrizione;
+  document.getElementById('panel-link').href         = casa.link;
+  document.getElementById('panel-gmaps').href        = `https://www.google.com/maps?q=${casa.lat},${casa.lon}`;
 
-  // Apri pannello
   document.getElementById('panel').classList.add('open');
 
-  // Popola il body con loading placeholder
   const body = document.getElementById('panel-body');
   body.innerHTML = '';
 
-  // Sezione spiagge
+  // Sezione spiagge — inserisce subito i link Google Maps come fallback
   body.innerHTML += `<div class="section-label">🏖️ Spiagge vicine</div>`;
   SPIAGGE.forEach((s, i) => {
+    const wLink = gmapsLink(casa.lat, casa.lon, s.lat, s.lon, 'walking');
+    const dLink = gmapsLink(casa.lat, casa.lon, s.lat, s.lon, 'driving');
     body.innerHTML += `
-      <div class="distance-item" id="beach-${i}">
+      <div class="distance-item">
         <span class="dist-icon">${s.emoji}</span>
         <div>
           <div class="dist-name">${s.nome}</div>
           <div class="dist-badges" id="beach-badges-${i}">
-            <span class="badge badge-loading">Calcolo in corso...</span>
+            <a class="badge badge-walk"  href="${wLink}" target="_blank" rel="noopener">🚶 Calcolo...</a>
+            <a class="badge badge-drive" href="${dLink}" target="_blank" rel="noopener">🚗 Calcolo...</a>
           </div>
         </div>
       </div>`;
@@ -668,41 +718,42 @@ async function openPanel(casaId) {
   // Sezione supermercati
   body.innerHTML += `<div class="section-label">🛒 Supermercati vicini</div>`;
   SUPERMERCATI.forEach((m, i) => {
+    const wLink = gmapsLink(casa.lat, casa.lon, m.lat, m.lon, 'walking');
+    const dLink = gmapsLink(casa.lat, casa.lon, m.lat, m.lon, 'driving');
     body.innerHTML += `
-      <div class="distance-item" id="market-${i}">
+      <div class="distance-item">
         <span class="dist-icon">${m.emoji}</span>
         <div>
           <div class="dist-name">${m.nome}</div>
           <div class="dist-badges" id="market-badges-${i}">
-            <span class="badge badge-loading">Calcolo in corso...</span>
+            <a class="badge badge-walk"  href="${wLink}" target="_blank" rel="noopener">🚶 Calcolo...</a>
+            <a class="badge badge-drive" href="${dLink}" target="_blank" rel="noopener">🚗 Calcolo...</a>
           </div>
         </div>
       </div>`;
   });
 
-  // Calcola distanze una alla volta con piccolo delay per non fare 429 su OSRM
+  // Calcola distanze reali con ORS, una alla volta per non sforare i rate limit
   const sleep = ms => new Promise(res => setTimeout(res, ms));
 
   for (let i = 0; i < SPIAGGE.length; i++) {
     const s = SPIAGGE[i];
     const [walk, drive] = await Promise.all([
-      getDistanza(casa.lat, casa.lon, s.lat, s.lon, 'foot'),
-      getDistanza(casa.lat, casa.lon, s.lat, s.lon, 'driving')
+      getORS(casa.lat, casa.lon, s.lat, s.lon, 'foot-walking'),
+      getORS(casa.lat, casa.lon, s.lat, s.lon, 'driving-car')
     ]);
-    const el = document.getElementById(`beach-badges-${i}`);
-    if (el) el.innerHTML = formatBadges(walk, drive, casa.lat, casa.lon, s.lat, s.lon);
-    await sleep(300); // 300ms tra una destinazione e l'altra
+    renderBadges(`beach-badges-${i}`, walk, drive, casa.lat, casa.lon, s.lat, s.lon);
+    await sleep(200);
   }
 
   for (let i = 0; i < SUPERMERCATI.length; i++) {
     const m = SUPERMERCATI[i];
     const [walk, drive] = await Promise.all([
-      getDistanza(casa.lat, casa.lon, m.lat, m.lon, 'foot'),
-      getDistanza(casa.lat, casa.lon, m.lat, m.lon, 'driving')
+      getORS(casa.lat, casa.lon, m.lat, m.lon, 'foot-walking'),
+      getORS(casa.lat, casa.lon, m.lat, m.lon, 'driving-car')
     ]);
-    const el = document.getElementById(`market-badges-${i}`);
-    if (el) el.innerHTML = formatBadges(walk, drive, casa.lat, casa.lon, m.lat, m.lon);
-    await sleep(300);
+    renderBadges(`market-badges-${i}`, walk, drive, casa.lat, casa.lon, m.lat, m.lon);
+    await sleep(200);
   }
 }
 
