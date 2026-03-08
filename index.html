@@ -457,8 +457,8 @@ const CASE = [
   },
   {
     id: "casa2",
-    nome: "Casa 2",
-    descrizione: "",
+    nome: "Casa 2 — Esempio Argasi",
+    descrizione: "3 camere · terrazza · vista mare",
     link: "https://www.booking.com/hotel/XXXXXXX",  // ← INSERISCI il tuo link
     lat: 37.7637,
     lon: 20.9226
@@ -586,6 +586,17 @@ CASE.forEach(casa => {
   marker.on('click', () => hideHint());
 });
 
+// ─── Distanza in linea d'aria (fallback locale) ───
+function distanzaLineaAria(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 +
+            Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+            Math.sin(dLon/2)**2;
+  return parseFloat((R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1));
+}
+
 // ─── ROUTING via OSRM (gratis, no API key) ───
 async function getDistanza(fromLat, fromLon, toLat, toLon, profile) {
   const url = `https://router.project-osrm.org/route/v1/${profile}/${fromLon},${fromLat};${toLon},${toLat}?overview=false`;
@@ -593,20 +604,26 @@ async function getDistanza(fromLat, fromLon, toLat, toLon, profile) {
     const r = await fetch(url);
     const d = await r.json();
     if (d.code !== 'Ok' || !d.routes?.length) return null;
-    const distKm  = (d.routes[0].distance / 1000).toFixed(1);
-    const durMin  = Math.round(d.routes[0].duration / 60);
-    return { km: distKm, min: durMin };
+    const distKm = (d.routes[0].distance / 1000).toFixed(1);
+    const durMin = Math.round(d.routes[0].duration / 60);
+    return { km: distKm, min: durMin, reale: true };
   } catch {
     return null;
   }
 }
 
-function formatBadges(walk, drive) {
+function formatBadges(walk, drive, fromLat, fromLon, toLat, toLon) {
   let html = '';
+  const osrmOk = walk || drive;
+
   if (walk)  html += `<span class="badge badge-walk">🚶 ${walk.min} min (${walk.km} km)</span>`;
-  else       html += `<span class="badge badge-loading">🚶 —</span>`;
   if (drive) html += `<span class="badge badge-drive">🚗 ${drive.min} min</span>`;
-  else       html += `<span class="badge badge-loading">🚗 —</span>`;
+
+  if (!osrmOk) {
+    // Fallback: linea d'aria
+    const km = distanzaLineaAria(fromLat, fromLon, toLat, toLon);
+    html += `<span class="badge badge-loading" title="Distanza in linea d'aria — i tempi stradali sono disponibili solo online">📐 ~${km} km in linea d'aria</span>`;
+  }
   return html;
 }
 
@@ -663,26 +680,30 @@ async function openPanel(casaId) {
       </div>`;
   });
 
-  // Calcola distanze in parallelo
-  const spiaggePromise = SPIAGGE.map(async (s, i) => {
+  // Calcola distanze una alla volta con piccolo delay per non fare 429 su OSRM
+  const sleep = ms => new Promise(res => setTimeout(res, ms));
+
+  for (let i = 0; i < SPIAGGE.length; i++) {
+    const s = SPIAGGE[i];
     const [walk, drive] = await Promise.all([
       getDistanza(casa.lat, casa.lon, s.lat, s.lon, 'foot'),
       getDistanza(casa.lat, casa.lon, s.lat, s.lon, 'driving')
     ]);
     const el = document.getElementById(`beach-badges-${i}`);
-    if (el) el.innerHTML = formatBadges(walk, drive);
-  });
+    if (el) el.innerHTML = formatBadges(walk, drive, casa.lat, casa.lon, s.lat, s.lon);
+    await sleep(300); // 300ms tra una destinazione e l'altra
+  }
 
-  const mercatiPromise = SUPERMERCATI.map(async (m, i) => {
+  for (let i = 0; i < SUPERMERCATI.length; i++) {
+    const m = SUPERMERCATI[i];
     const [walk, drive] = await Promise.all([
       getDistanza(casa.lat, casa.lon, m.lat, m.lon, 'foot'),
       getDistanza(casa.lat, casa.lon, m.lat, m.lon, 'driving')
     ]);
     const el = document.getElementById(`market-badges-${i}`);
-    if (el) el.innerHTML = formatBadges(walk, drive);
-  });
-
-  await Promise.all([...spiaggePromise, ...mercatiPromise]);
+    if (el) el.innerHTML = formatBadges(walk, drive, casa.lat, casa.lon, m.lat, m.lon);
+    await sleep(300);
+  }
 }
 
 function closePanel() {
